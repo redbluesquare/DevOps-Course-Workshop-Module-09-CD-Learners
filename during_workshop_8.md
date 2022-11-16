@@ -99,25 +99,30 @@ In one of the workshop 7 goals you were asked to set up a Jenkins job for the ap
 </details>
 <details><summary> Click for instructions using the CLI </summary>
 
+* First make sure that you've logged into the right account with `az login` (or `az login --use-device-code` on GitPod)
+  * You can check which account you're logged into with `az account list`
 * First create an App Service Plan: `az appservice plan create --resource-group <resource_group_name> -n <appservice_plan_name> --sku B1 --is-linux`
 * Then create the Web App: `az webapp create --resource-group <resource_group_name> --plan <appservice_plan_name> --name <webapp_name> --deployment-container-image-name docker.io/<dockerhub_username>/<container-image-name>:latest`
   </details>
-4. You can see the app running by visiting `https://<webapp_name>.azurewebsites.net`; or use the "Browse" button from within the new resource's overview page
+4. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
 
 ### Automate deployment to Azure
 
-Simply pushing a new image to DockerHub will not re-deploy your app service; or not by default. We can enable that behaviour for specific container registries (including DockerHub) by [switching on the "Continuous Deployment" option](https://learn.microsoft.com/en-us/azure/app-service/deploy-ci-cd-custom-container?tabs=acr&pivots=container-linux#4-enable-cicd) in the "Deployment Center", but for today we'll set this up manually so we can see what's going on and better control it.
+Simply pushing a new image to DockerHub will not re-deploy your app service by default. We can enable that behaviour for specific container registries (including DockerHub) by [switching on the "Continuous Deployment" option](https://learn.microsoft.com/en-us/azure/app-service/deploy-ci-cd-custom-container?tabs=acr&pivots=container-linux#4-enable-cicd) in the "Deployment Center", but for today we'll set this up manually so we can see what's going on and better control it.
 
 To automate this, you will first need to find your Web App's deployment webhook under the "Deployment Center" tab from your Web App.
 
 Test that now by running a curl command locally from a bash shell:
 * Take the webhook provided by the previous step, add in a backslash to escape the $, and run: `curl -dH -X POST "<webhook>"`
 * eg: `curl -dH -X POST "https://\$<deployment_username>:<deployment_password>@<webapp_name>.scm.azurewebsites.net/docker/hook"`
+
 This should return a link to a log-stream relating to the re-deployment of your application.
 
-Once we've demonstrated that working locally, add your webhook as a secret to your repository called `AZURE_WEBHOOK`, and run the relevant curl command as a final step in your deployment job pipeline.
+Once you've demonstrated that working locally, add your webhook as a secret to your repository called `AZURE_WEBHOOK`, and run the relevant curl command as a final step in your deployment job pipeline.
 
-> A nice addition here can be adding the [--fail](https://curl.se/docs/manpage.html#-f) flag, as otherwise curl reports success as long as a successful connection was made, even if the response reports a failure (e.g. a status code > 400) which can lead to confusing pipeline results
+> A nice addition here can be adding the [--fail](https://curl.se/docs/manpage.html#-f) flag to your curl command, as otherwise curl reports success as long as a successful connection was made, even if the response reports a failure (e.g. a status code > 400) which can lead to confusing pipeline results
+
+Check that your pipeline output still shows the log-stream result after making the `curl` request.
 
 #### **With GitHub Actions**
 
@@ -154,10 +159,6 @@ And then using the environment variable:
 
 </details>
 </details>
-
-#### **With GitLab CI/CD**
-
-Check that your pipeline output still shows the log-stream result after making the `curl` request.
 
 ### Test your workflow again
 
@@ -196,17 +197,17 @@ As part of this it can be useful to add a new healthcheck endpoint to the app, s
 
 At the end of your workflow, check that the response from the healthcheck endpoint is correct.
 
-### (Stretch goal) Handle failure
-How would you handle failure, for example if the healthcheck in the previous step fails? Write a custom action that will automatically roll-back a failed Azure deployment. Make sure it sends an appropriate alert! Find a way to break your application and check this works.
-
 ### (Stretch goal) Monitor for failure
 Failures don't always happen immediately after a deployment. Sometimes runtime issues will only emerge after minutes, hours or days in production. Set up a separate workflow which will use your healthcheck endpoint and send a notification if the healthcheck fails. Make sure this workflow runs every 5 minutes. Hint: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onschedule.
 
-### (Stretch goal) Multiple environments
-Try making your workflow release to a different Azure app for two different branches of your repository.
-
 ### (Stretch goal) Promote when manually triggered
 Currently we'll deploy every time a change is pushed to the main branch. However you might want to have more control over when deployments happen. Modify your Azure and workflow setup so your main branch releases to a staging environment, and you instead manually trigger a workflow to release to production.
+
+### (Stretch goal) Handle failure
+How would you handle failure, for example if the healthcheck in the previous step fails? Write a custom action that will automatically roll-back a failed Azure deployment. Make sure it sends an appropriate alert! Find a way to break your application and check this works.
+
+### (Stretch goal) Multiple environments
+Try making your workflow release to a different Azure app for two different branches of your repository.
 
 ### (Stretch goal) Jenkins
 In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Now modify the Jenkinsfile so that it will deploy to Azure.
