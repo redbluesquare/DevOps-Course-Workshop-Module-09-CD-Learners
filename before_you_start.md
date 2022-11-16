@@ -9,3 +9,4 @@ You will need to have installed the following:
 - [NPM](https://www.npmjs.com/get-npm)
 - [.NET SDK (5.0 or 6.0)](https://dotnet.microsoft.com/download)
 - [Docker](https://www.docker.com/products/docker-desktop)
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
