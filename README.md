@@ -1,4 +1,4 @@
-# Workshop Module 08
+# Continuous Delivery Workshop Module 09
 
 This repository is for learners on Corndel's DevOps apprenticeship.
 
@@ -8,7 +8,7 @@ If you attended workshop 7, continue working with your repository from before. I
 
 There are valid workflow files included here as a starting point (`.github/workflows/continuous-integration-workflow.yml` for GitHub or `.gitlab-ci.yml` for GitLab)
 
-During this workshop follow the instructions in [during_workshop_8.md](./during_workshop_8.md).
+During this workshop follow the instructions in [during_workshop.md](./during_workshop.md).
 
 Refer back to [Workshop 7's instructions](https://github.com/CorndelWithSoftwire/DevOps-Course-Workshop-Module-07-Learners/blob/main/during_workshop_7.md) for a refresher on the basics or if you would like to go back and attempt those stretch goals.
 
