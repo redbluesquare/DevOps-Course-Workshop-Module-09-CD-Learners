@@ -90,6 +90,7 @@ In one of the workshop 7 goals you were asked to set up a Jenkins job for the ap
 
   * From within your Resource Group, select the "Create" option at the top
   * Select the "Web App" option shown, or if you can't see it then search for it
+    * We want precisely "Web App", watch out for & avoid similar resources such as "Static Web App" or "Web App for Containers"
   * Set the relevant options:
     * Make sure the Resource Group points to your `_Workshop` group
     * Choose a name for your app - this will need to be globally unique so including your initials may be sensible
