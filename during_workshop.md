@@ -1,4 +1,4 @@
-# Workshop 8 Instructions
+# Continuous Delivery Workshop Instructions
 
 ## Part 1 (Publish to Docker Hub)
 
