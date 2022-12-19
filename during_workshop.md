@@ -2,6 +2,8 @@
 
 ## Part 1 (Publish to Docker Hub)
 
+Before we deploy our application, we are going to containerise it. In addition to the consistency advantage of knowing our deployed solution should run very similarly to our local container, another advantage of deploying a container is that we are less directly tied in to a particular hosting platform; many cloud providers provide various routes for running containers which gives us flexibility when selecting or even changing our architecture.
+
 ### Add a Dockerfile
 
 Write a Dockerfile so that you can run the DotnetTemplate web app in a Docker container.
@@ -76,66 +78,92 @@ Modify the workflow so that it will only publish to Docker Hub when run on certa
 ### (Stretch goal) Publish to Docker Hub with Jenkins
 In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Modify the Jenkinsfile so that it will publish to Docker Hub.
 
-## Part 2 (Deploy to Heroku)
+## Part 2 (Deploy to Azure)
 
-### Deploy to Heroku manually
+### Deploy to Azure manually
 
-> ⚠️ M1 Mac users: Heroku uses x86-64 processors, so to build your image for Heroku use `--platform linux/amd64` when running `docker build`, and avoid using `heroku container:push`.
+1. Sign into [the Azure portal](https://portal.azure.com/) - you should have been given account credentials by a trainer.
+2. Locate your resource groups. You should find you have two, one ending with `_Workshop` which we'll be using today.
+> A resource group is a logical container into which Azure resources, such as web apps, databases, and storage accounts, are deployed and managed. [More Azure Terminology can be found here](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview#terminology).
+3. Create a Web App to run our container
+<details><summary> Click for instructions using the portal </summary>
 
-1. Create a free Heroku account: https://signup.heroku.com/.
-2. Create a new Heroku app: https://dashboard.heroku.com/new-app. Do not click the button to integrate with a GitHub repository.
-3. Build your docker image locally and deploy it to Heroku. See https://devcenter.heroku.com/articles/container-registry-and-runtime for instructions. In particular you want to [push an existing image](https://devcenter.heroku.com/articles/container-registry-and-runtime#building-and-pushing-image-s) then [release the image](https://devcenter.heroku.com/articles/container-registry-and-runtime#cli). The first steps will push the Docker image to Heroku's Docker Hub registry. Then the last step will deploy that image to your Heroku app.
-> - The docs mention a "process-type". You want to use `web`
-> - If you are using `ENTRYPOINT dotnet run`, that will not work on Heroku because of how it runs containers. You can use the "exec" syntax instead: `ENTRYPOINT ["dotnet", "run"]`
-4. You should now see a log of the deployment on your Heroku app's dashboard: https://dashboard.heroku.com/apps/<HEROKU_APP_NAME> (replace `<HEROKU_APP_NAME>` with the name you gave your Heroku app when you created it).
-5. You can see the app running by clicking the "Open app" button on the app's dashboard, or by going to <HEROKU_APP_NAME>.herokuapp.com.
+  * From within your Resource Group, select the "Create" option at the top
+  * Select the "Web App" option shown, or if you can't see it then search for it
+    * We want precisely "Web App", watch out for & avoid similar resources such as "Static Web App" or "Web App for Containers"
+  * Set the relevant options:
+    * Make sure the Resource Group points to your `_Workshop` group
+    * Choose a name for your app - this will need to be globally unique so including your initials may be sensible
+    * For the "Publish" option, select "Docker Container"
+    * Under “App Service Plan”, it should default to creating a new one, which is correct. Just change the “Sku and size” to “B1”.
+    * On the next screen, select Docker Hub in the “Image Source” field, and enter the details of your image.
+</details>
+<details><summary> Click for instructions using the CLI </summary>
 
-### Automate deployment to Heroku
+* First make sure that you've logged into the right account with `az login` (or `az login --use-device-code` on GitPod)
+  * You can check which account you're logged into with `az account list`
+* First create an App Service Plan: `az appservice plan create --resource-group <resource_group_name> -n <appservice_plan_name> --sku B1 --is-linux`
+* Then create the Web App: `az webapp create --resource-group <resource_group_name> --plan <appservice_plan_name> --name <webapp_name> --deployment-container-image-name docker.io/<dockerhub_username>/<container-image-name>:latest`
+  </details>
+4. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
 
-You will need an API key so that your pipeline can access Heroku. Manually run the command `heroku authorizations:create` to generate it.
+### Automate deployment to Azure
+
+Simply pushing a new image to DockerHub will not re-deploy your app service by default. We can enable that behaviour for specific container registries (including DockerHub) by [switching on the "Continuous Deployment" option](https://learn.microsoft.com/en-us/azure/app-service/deploy-ci-cd-custom-container?tabs=acr&pivots=container-linux#4-enable-cicd) in the "Deployment Center", but for today we'll set this up manually so we can see what's going on and better control it.
+
+To automate this, you will first need to find your Web App's deployment webhook under the "Deployment Center" tab from your Web App.
+
+Test that now by running a curl command locally from a bash shell:
+* Take the webhook provided by the previous step, add in a backslash to escape the $, and run: `curl -dH -X POST "<webhook>"`
+* eg: `curl -dH -X POST "https://\$<deployment_username>:<deployment_password>@<webapp_name>.scm.azurewebsites.net/docker/hook"`
+
+This should return a link to a log-stream relating to the re-deployment of your application.
+
+Once you've demonstrated that working locally, add your webhook as a secret to your repository called `AZURE_WEBHOOK`, and run the relevant curl command as a final step in your deployment job pipeline.
+
+> A nice addition here can be adding the [--fail](https://curl.se/docs/manpage.html#-f) flag to your curl command, as otherwise curl reports success as long as a successful connection was made, even if the response reports a failure (e.g. a status code > 400) which can lead to confusing pipeline results
+
+Check that your pipeline output still shows the log-stream result after making the `curl` request.
 
 #### **With GitHub Actions**
 
-Add your API key as a GitHub Actions secret.
+<details>
+<summary>Hint</summary>
 
-Add new steps to your publishing job in order to deploy to Heroku. You should be able to find an existing action to do this for you, or again, you could script it yourself. As with publishing to Docker Hub, this should only run on the "main" branch.
+Escaping secrets in GitHub Actions can be fiddly; consider the following concerns:
+
+* Secrets are interpreted _before_ the shell sees the command
+* Using single quotes around something tells bash to treat it literally (`echo '$PATH'` will literally print the word `$PATH` not the variable)
+* GitHub Actions appears to escape strings itself when converting secrets to environment variables
 
 <details>
 <summary>Hint</summary>
 
-You might want to look [at this action](https://github.com/marketplace/actions/deploy-to-heroku).
+Because of the above, if you've _not_ escaped your secret before adding it to GitHub's secrets, you may want a command like:
+```
+- run: curl -dH --fail -X POST '${{ secrets.RAW_WEBHOOK }}'
+```
+Whereas if you _have_ escaped the secret already, try something like:
+```
+- run: curl -dH --fail -X POST "${{ secrets.ESCAPED_WEBHOOK }}"
+```
 
-<details>
-<summary>Hint</summary>
+Alternatively, let GitHub actions handle your escaping by adding an env block:
+```
+env:
+  ESCAPED_WEBHOOK: '${{ secrets.RAW_WEBHOOK }}'
+```
+And then using the environment variable:
+```
+- run: curl -dH --fail -X POST $ESCAPED_WEBHOOK
+```
 
-See the example ["Deploy with Docker"](https://github.com/marketplace/actions/deploy-to-heroku#deploy-with-docker) section, and don't forget the `usedocker` flag
 </details>
 </details>
-
-#### **With GitLab CI/CD**
-
-Set your API key as an environment variable called "HEROKU_API_KEY".
-
-Add a new job to your `.gitlab-ci.yml` file. You need to:
-
-* Set up pre-requisites:
-  * Run the job in a "Docker in Docker" image by setting `image: docker`
-  * Add "Docker" service to your job by setting `services: [ docker:dind ]`. For both of these, you could pick a specific tag from [the repository](https://hub.docker.com/_/docker) to control the version of Docker.
-  * Install Heroku CLI and its dependencies with:
-  ```bash
-  apk add --update-cache curl bash npm
-  curl https://cli-assets.heroku.com/install.sh | sh
-  ```
-
-* Add all the commands that you ran manually before. Namely:
-  * Build your image
-  * Log in to the Heroku container registry
-  * Push your image
-  * Trigger a "release"
 
 ### Test your workflow again
 
-Make a small, visible change again, push it to your repository and check that it automatically shows up on your Heroku website.
+Make a small, visible change again, push it to your repository and check that it automatically shows up on your deployed Azure website.
 
 ###  (Stretch goal) Multistage Dockerfile
 You may have noticed that the image our Dockerfile builds is pretty sizeable (~1.5GB) and, apart from taking up space, it slows our pipeline down during the upload step. .NET allows us to separate the dependencies needed to build the code (part of the SDK) from those needed to run the compiled binary (the runtime), with the latter being much smaller. This offers a good opportunity to optimise the speed of our deployment pipeline.
@@ -170,17 +198,17 @@ As part of this it can be useful to add a new healthcheck endpoint to the app, s
 
 At the end of your workflow, check that the response from the healthcheck endpoint is correct.
 
-### (Stretch goal) Handle failure
-How would you handle failure, for example if the healthcheck in the previous step fails? Write a custom action that will automatically roll-back a failed Heroku deployment. Make sure it sends an appropriate alert! Find a way to break your application and check this works.
-
 ### (Stretch goal) Monitor for failure
 Failures don't always happen immediately after a deployment. Sometimes runtime issues will only emerge after minutes, hours or days in production. Set up a separate workflow which will use your healthcheck endpoint and send a notification if the healthcheck fails. Make sure this workflow runs every 5 minutes. Hint: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onschedule.
 
-### (Stretch goal) Multiple environments
-Try making your workflow release to a different Heroku app environment for each branch of your repository.
-
 ### (Stretch goal) Promote when manually triggered
-Currently we'll deploy every time a change is pushed to the main branch. However you might want to have more control over when deployments happen. Modify your Heroku and workflow setup so your main branch releases to a staging environment, and you instead manually trigger a workflow to release to production. 
+Currently we'll deploy every time a change is pushed to the main branch. However you might want to have more control over when deployments happen. Modify your Azure and workflow setup so your main branch releases to a staging environment, and you instead manually trigger a workflow to release to production.
+
+### (Stretch goal) Handle failure
+How would you handle failure, for example if the healthcheck in the previous step fails? Write a custom action that will automatically roll-back a failed Azure deployment. Make sure it sends an appropriate alert! Find a way to break your application and check this works.
+
+### (Stretch goal) Multiple environments
+Try making your workflow release to a different Azure app for two different branches of your repository.
 
 ### (Stretch goal) Jenkins
-In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Now modify the Jenkinsfile so that it will deploy to Heroku.
+In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Now modify the Jenkinsfile so that it will deploy to Azure.
