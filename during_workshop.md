@@ -105,7 +105,12 @@ In one of the workshop 7 goals you were asked to set up a Jenkins job for the ap
 * First create an App Service Plan: `az appservice plan create --resource-group <resource_group_name> -n <appservice_plan_name> --sku B1 --is-linux`
 * Then create the Web App: `az webapp create --resource-group <resource_group_name> --plan <appservice_plan_name> --name <webapp_name> --deployment-container-image-name docker.io/<dockerhub_username>/<container-image-name>:latest`
   </details>
-4. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
+<br>
+
+4. Configure the [`WEBSITES_PORT` app setting](https://learn.microsoft.com/en-us/azure/app-service/configure-custom-container?tabs=debian&pivots=container-linux#configure-port-number) which identifies which port in the container requests should be forwarded to (which will likely be port 5000 for your container image).
+5. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
+
+
 
 ### Automate deployment to Azure
 
