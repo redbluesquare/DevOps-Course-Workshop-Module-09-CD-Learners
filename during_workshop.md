@@ -105,12 +105,42 @@ In one of the workshop 7 goals you were asked to set up a Jenkins job for the ap
 * First create an App Service Plan: `az appservice plan create --resource-group <resource_group_name> -n <appservice_plan_name> --sku B1 --is-linux`
 * Then create the Web App: `az webapp create --resource-group <resource_group_name> --plan <appservice_plan_name> --name <webapp_name> --deployment-container-image-name docker.io/<dockerhub_username>/<container-image-name>:latest`
   </details>
-4. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
+<br>
+
+4. Configure the [`WEBSITES_PORT` app setting](https://learn.microsoft.com/en-us/azure/app-service/configure-custom-container?tabs=debian&pivots=container-linux#configure-port-number) which identifies which port in the container requests should be forwarded to (which will likely be port 5000 for your container image).
+5. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
+
+> Troubleshooting:
+>
+> 1: Deployment logs can be found the Deployment Center tab on the App Service's page in the Azure portal.
+>  * This only covers pulling and running the container image. For logs not related to deployment please consult the *Log Stream* tab
+>
+> 2: You can trigger a redeployment of the container image by calling the Webhook URL with a POST request ([see the next section below](#calling-the-deployment-webhook)).
+>  * This is necessary if you have updated the container image on Docker hub *after* creating the App Service (restarting the App Service will *not* trigger a redeployment!)
+>
+> 3: If you see the following message when deploying from an M1/M2 Mac:
+> ```
+> 2023-02-02T10:33:51.938273952Z standard_init_linux.go:228: exec user process caused: exec format error
+> ```
+> Then it's possible the container image has been built with the wrong architecture. To fix this pass the `--platform linux/amd64` flag when running `docker build`.
+> 
+> 4: If you are seeing an error like the following:
+> ```
+> ERROR - failed to register layer: Error processing tar file(exit status 1): Container ID 110779 cannot be mapped to a host IDErr: 0, Message: failed to register layer: Error processing tar file(exit status 1): Container ID 110779 cannot be mapped to a host ID
+> ```
+> This is likely due to [Docker User Namespace remapping running on the App Service VM](https://azureossd.github.io/2022/06/30/Docker-User-Namespace-remapping-issues/index.html).
+> To fix this message replace `RUN npm install` in your Dockerfile with 
+> ```
+> RUN npm install && find ./node_modules/ ! -user root | xargs chown root:root
+> ```
+> Next rebuild the image and push to Docker Hub (don't forget to call [the Webhook](#calling-the-deployment-webhook)).
+
 
 ### Automate deployment to Azure
 
 Simply pushing a new image to DockerHub will not re-deploy your app service by default. We can enable that behaviour for specific container registries (including DockerHub) by [switching on the "Continuous Deployment" option](https://learn.microsoft.com/en-us/azure/app-service/deploy-ci-cd-custom-container?tabs=acr&pivots=container-linux#4-enable-cicd) in the "Deployment Center", but for today we'll set this up manually so we can see what's going on and better control it.
 
+#### Calling the Deployment Webhook
 To automate this, you will first need to find your Web App's deployment webhook under the "Deployment Center" tab from your Web App.
 
 Test that now by running a curl command locally from a bash shell:
