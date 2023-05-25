@@ -1,1 +1,2 @@
-image: gitpod/workspace-dotnet:latest
+image:
+  file: .gitpod.Dockerfile
