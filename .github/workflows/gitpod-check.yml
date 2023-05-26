@@ -26,7 +26,9 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         # if: ${{ failure() }}
         with:
-          slack-message: "${{ github.repository }} is reporting issues: This is a test message"
+          payload: {
+            "text": "${{ github.repository }} is reporting issues: This is a test message"
+          }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
