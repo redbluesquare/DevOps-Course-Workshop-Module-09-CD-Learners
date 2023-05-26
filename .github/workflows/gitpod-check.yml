@@ -4,9 +4,6 @@ on:
     # weekdays only
     - cron: '0 16 * * 1-5'
 
-env:
-  DESIRED_DOTNET_MAJOR_VERSION: 7
-
 jobs:
   gitpod-image-check:
     name: Check the required tooling exists
