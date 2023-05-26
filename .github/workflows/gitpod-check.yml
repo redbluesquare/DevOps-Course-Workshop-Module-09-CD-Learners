@@ -11,6 +11,7 @@ env:
 
 jobs:
   gitpod-image-check:
+    name: Check the required tooling exists
         #TODO: update to use main branch once tested 
     uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@initial-setup
     with:
