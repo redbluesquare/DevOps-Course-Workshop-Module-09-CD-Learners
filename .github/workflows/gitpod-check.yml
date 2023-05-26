@@ -13,7 +13,7 @@ jobs:
   gitpod-image-check:
     runs-on: ubuntu-latest
     name: Check the required tooling exists
-        #TODO: update to use main branch once tested
+        #TODO: update to use main branch once tested 
     uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@initial-setup
     with:
       docker-image: gitpod/workspace-dotnet:latest
