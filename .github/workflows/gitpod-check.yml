@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Verify correct tools are installed in GitPod image
 on:
   schedule:
     # weekdays only
@@ -12,6 +12,7 @@ env:
 jobs:
   gitpod-image-check:
     name: Check the required tooling exists
+    if: never()
     #TODO: update to use main branch once tested
     uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@main
     with:
@@ -19,3 +20,13 @@ jobs:
       tools-to-check: dotnet@7 node npm docker
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  slack-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report results via Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        # if: ${{ failure() }}
+        with:
+          slack-message: "${{ github.repository }} is reporting issues: This is a test message"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
