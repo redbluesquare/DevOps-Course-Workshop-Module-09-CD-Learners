@@ -18,4 +18,4 @@ jobs:
       docker-image: gitpod/workspace-dotnet:latest
       tools-to-check: dotnet@7 node npm docker
     secrets:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
