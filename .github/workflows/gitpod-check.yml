@@ -29,3 +29,4 @@ jobs:
           slack-message: "${{ github.repository }} is reporting issues: This is a test message"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
