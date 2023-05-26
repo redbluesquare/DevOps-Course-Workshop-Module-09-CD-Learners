@@ -3,33 +3,16 @@ on:
   schedule:
     # weekdays only
     - cron: '0 16 * * 1-5'
-  # update to schedule once tested
-  push:
 
 env:
   DESIRED_DOTNET_MAJOR_VERSION: 7
 
 jobs:
-  # gitpod-image-check:
-  #   name: Check the required tooling exists
-  #   #TODO: update to use main branch once tested
-  #   uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@main
-  #   with:
-  #     docker-image: gitpod/workspace-dotnet:latest
-  #     tools-to-check: dotnet@7 node npm docker
-  #   secrets:
-  #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  slack-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Report results via Slack
-        uses: slackapi/slack-github-action@v1.24.0
-        # if: ${{ failure() }}
-        with:
-          payload: |
-            {
-              "text": "${{ github.repository }} is reporting issues: This is a test message"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+  gitpod-image-check:
+    name: Check the required tooling exists
+    uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@main
+    with:
+      docker-image: gitpod/workspace-dotnet:latest
+      tools-to-check: dotnet@7 node npm docker az
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
