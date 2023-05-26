@@ -13,7 +13,7 @@ jobs:
   gitpod-image-check:
     name: Check the required tooling exists
     #TODO: update to use main branch once tested
-    uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml
+    uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@main
     with:
       docker-image: gitpod/workspace-dotnet:latest
       tools-to-check: dotnet@7 node npm docker
