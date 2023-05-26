@@ -12,12 +12,9 @@ env:
 jobs:
   gitpod-image-check:
     runs-on: ubuntu-latest
-    steps:
-      - name: Print the repository owner
-        run: echo ${{ github.repository_owner }}
-      - name: Check the required tooling exists
+    name: Check the required tooling exists
         #TODO: update to use main branch once tested
-        uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@initial-setup
-        with:
-          docker-image: gitpod/workspace-dotnet:latest
-          tools-to-check: dotnet@7 node npm docker
+    uses: CorndelWithSoftwire/DevOps-Course-Workflows/.github/workflows/docker-image-tooling-check.yml@initial-setup
+    with:
+      docker-image: gitpod/workspace-dotnet:latest
+      tools-to-check: dotnet@7 node npm docker
