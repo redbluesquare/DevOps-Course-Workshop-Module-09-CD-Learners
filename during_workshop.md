@@ -231,14 +231,11 @@ At the end of your workflow, check that the response from the healthcheck endpoi
 ### (Stretch goal) Monitor for failure
 Failures don't always happen immediately after a deployment. Sometimes runtime issues will only emerge after minutes, hours or days in production. Set up a separate workflow which will use your healthcheck endpoint and send a notification if the healthcheck fails. Make sure this workflow runs every 5 minutes. Hint: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onschedule.
 
+### (Stretch goal) Handle failure
+How would you handle failure, for example if one of the healthchecks from the previous two steps fail? Modify your existing workflows so that they will automatically roll-back a failed Azure deployment. Make sure they send an appropriate alert! Find a way to break your application and check this works.
+
 ### (Stretch goal) Promote when manually triggered
 Currently we'll deploy every time a change is pushed to the main branch. However you might want to have more control over when deployments happen. Modify your Azure and workflow setup so your main branch releases to a staging environment, and you instead manually trigger a workflow to release to production.
-
-### (Stretch goal) Handle failure
-How would you handle failure, for example if the healthcheck in the previous step fails? Write a custom action that will automatically roll-back a failed Azure deployment. Make sure it sends an appropriate alert! Find a way to break your application and check this works.
-
-### (Stretch goal) Multiple environments
-Try making your workflow release to a different Azure app for two different branches of your repository.
 
 ### (Stretch goal) Jenkins
 In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Now modify the Jenkinsfile so that it will deploy to Azure.
