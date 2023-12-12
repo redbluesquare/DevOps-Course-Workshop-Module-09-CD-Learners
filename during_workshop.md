@@ -35,9 +35,11 @@ Once you've done that try building and running the Dockerfile locally to check i
 
 You should already have a pipeline which builds and tests the app. You will now extend it to automatically build the Docker image and publish it to Docker Hub.
 
-Use one of **GitHub Actions** or **GitLab CI/CD** for this workshop - GitHub Actions is the default if you're not sure which to choose.
+Use one of **GitHub Actions**, **GitLab CI/CD**, or **Azure DevOps Pipelines** for this workshop - GitHub Actions is the default if you're not sure which to choose.
 
 #### **With GitHub Actions**
+
+<details><summary> Click to see GitHub Actions guidance </summary>
 
 You could add new steps to your existing job, but let's create a new job to handle this. Make sure your new job only runs after the testing job completes successfully, by using the ["needs"](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idneeds) option.
 
@@ -47,7 +49,12 @@ Try tagging your published image with the name of the branch that triggered the 
 
 > Note that default environment variables won't be available in a `with: ` section because that's evaluated during workflow processing, before it is sent to the runner.
 
+</details>
+
+
 #### **With GitLab CI/CD**
+
+<details><summary> Click to see GitLab CI guidance </summary>
 
 Add a new job to your .gitlab-ci.yml file. It should belong to a new stage so that it only runs after all tests have completed successfully.
 
@@ -65,6 +72,18 @@ You do this via the GitLab website (Settings -> CI/CD -> Variables). CI/CD Varia
 
 Try tagging your published image with the name of the branch that triggered the build. Find the appropriate environment variable from [GitLab's documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
 
+</details>
+
+#### **With Azure DevOps**
+
+<details><summary> Click to see Azure DevOps guidance </summary>
+
+Add a new job to your `azure-pipelines.yml` file.
+
+# ACTUAL ADVICE GOES HERE
+
+</details>
+
 ### Test your workflow
 To test that publishing to Docker Hub is working:
 1. Make some change to the application code. Don't worry if you don't know anything about C#, find some visible text to modify in DotnetTemplate.Web/Views/Home/FirstPage.cshtml.
@@ -75,8 +94,8 @@ To test that publishing to Docker Hub is working:
 ### Publish only on main
 Modify the workflow so that it will only publish to Docker Hub when run on certain branches, for example only when the main branch is updated.
 
-### (Stretch goal) Publish to Docker Hub with Jenkins
-In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Modify the Jenkinsfile so that it will publish to Docker Hub.
+### (Stretch goal) Pick another CI tool to compare
+Have a go at following the instructions for an alternative CI tool - how does it compare? Which do you prefer?
 
 ## Part 2 (Deploy to Azure)
 
@@ -189,6 +208,14 @@ And then using the environment variable:
 ```
 
 </details>
+</details>
+
+#### **With Azure DevOps**
+
+<details><summary>Hint </summary>
+
+# how to set secret appropriately
+# how to reference it
 </details>
 
 ### Test your workflow again
