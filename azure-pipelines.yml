@@ -1,15 +1,19 @@
-# TODO CHECK THIS PIPELINE ACTUALLY WORKS
-
-# Change so it runs on every branch, so they need to change this
 trigger:
-  - main
+- '*'
 
 pool:
   vmImage: 'ubuntu-latest'
 
+parameters:
+  - name: skipTesting
+    displayName: Skip Testing
+    type: boolean
+    default: true
+
 jobs:
   - job: nodejs
     displayName: "Build and test Javascript"
+    condition: not( ${{ parameters.skipTesting }} )
     steps:
       - task: NodeTool@0
         displayName: "Install NodeJS + NPM"
@@ -34,6 +38,7 @@ jobs:
 
   - job: dotnet
     displayName: "Build and test .NET"
+    condition: not( ${{ parameters.skipTesting }} )
     steps:
       - task: UseDotNet@2
         displayName: "Install .NET SDK"
