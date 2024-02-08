@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - 5000:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s

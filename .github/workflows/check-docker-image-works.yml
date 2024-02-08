@@ -1,0 +1,23 @@
+name: Check the build passes in Docker
+on:
+  schedule:
+      # 15:30 on a Monday
+      - cron: '30 15 * * 1'
+  workflow_dispatch:
+
+jobs:
+  docker_image:
+    name: Check Docker build is valid
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build & run the Docker image
+      run: docker compose up -d --build
+    - name: Check valid
+      run: curl --fail http://localhost:5000
+    - name: Notify Teams
+      if: always()
+      uses: skitionek/notify-microsoft-teams@master
+      with:
+        webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
+        job: ${{ toJson(job) }}
