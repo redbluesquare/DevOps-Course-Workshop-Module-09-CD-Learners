@@ -244,5 +244,5 @@ How would you handle failure, for example if one of the healthchecks from the pr
 ### (Stretch goal) Promote when manually triggered
 Currently we'll deploy every time a change is pushed to the main branch. However you might want to have more control over when deployments happen. Modify your Azure and workflow setup so your main branch releases to a staging environment, and you instead manually trigger a workflow to release to production.
 
-### (Stretch goal) Jenkins
-In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Now modify the Jenkinsfile so that it will deploy to Azure.
+### (Stretch goal) Pick another CI tool to compare
+Have a go at following the instructions for an alternative CI tool - how does it compare? Which do you prefer?

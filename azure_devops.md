@@ -2,15 +2,15 @@
 
 ## Import the repository into Azure DevOps
 
-Along with those in your breakout room you will have access to an ADO "project", so at this point sign into ADO at <https://aex.dev.azure.com/> and check that you can locate that. If you don't have your Azure credentials, ask a trainer at this stage.
+Along with those in your breakout room you will have access to an ADO "project", so at this point sign into ADO at <https://aex.dev.azure.com/> and check that you can locate that. If you don't have your Azure credentials or the Organisation doesn't show up, ask a trainer at this stage. You may be able to access it directly at <https://dev.azure.com/CorndelDevOpsPipelinesWorkshop/>.
 
-Under "Repos", by default we suggest you *each* import a copy of the repo at <https://github.com/corndeladmin/DevOps-Course-Workshop-Module-09-CD-Learners/> - label them clearly so you know whose is whose.
+By default we suggest you *each* work on a separate repository. You should have the correct number of repos created already - so select the "Repos" tab on the left, select the name of the initial repository at the top, and select "Manage Repositories". Choose one of the repos and rename it with your name so that you know whose is whose.
 
-If someone has already created the first repository and you want to create another, then you can click on the repository list at the top (as per the image below) and click "Import Repository" to create a new one.
+![Manage Repositories option in ADO](./img/ManageRepositories.png)
 
 Clone your repository onto the machine you'll be working on, and you're ready to start setting up the app.
 
-> If you haven't already, you may now need to set your credentials <TODO>
+> The easiest way to do this is to use HTTPS and use the "generate credentials" option when it asks for a password. Make a note of this in case you need it later
 
 ## Part 1 (Publish to Docker Hub)
 
@@ -18,8 +18,13 @@ Before we deploy our application, we are going to containerise it. In addition t
 
 ### Build the Docker Image
 
-We have provided the outline of a Dockerfile so that you can run the DotnetTemplate web app in a Docker container; you should check that you can build & run this image.
+We have provided the outline of a Dockerfile so that you can run the DotnetTemplate web app in a Docker container; you should check that you can build & run this image. Note that if this runs slowly, it's reasonable to skip this stage, and just get Azure to run it for you.
+
+To build:
+
 `docker build --target runtime --tag dotnettemplate .`
+
+To run:
 
 `docker run -it -p 5000:5000 dotnettemplate`
 
@@ -30,6 +35,7 @@ Take a look at the Dockerfile, can you see what it's doing?
 > Try building the initial image stage with `docker build --target build-stage --tag intermediate .`, and compare its size through Docker Desktop or `docker image ls`.
 
 ### Manually publish to Docker Hub
+
 1. Create a personal free account on [Docker Hub](https://hub.docker.com/) (if you haven't already).
 2. Create a public repository in Docker Hub: https://hub.docker.com/repository/create. Don't connect it to GitHub, and name it dotnettemplate.
 3. Build your Docker image locally and push it to Docker Hub. See https://docs.docker.com/docker-hub/repos/ for instructions. 
@@ -59,7 +65,6 @@ In your ADO Project Settings (bottom left corner) go to "Service Connections" an
   * Select type `DockerHub`
   * Enter your Docker ID and use the access token as the password
   * Give the connection a name
-  * For now, we recommend to allow all pipelines to access that connection
 
 You can now use the [Docker task](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/docker-v2?view=azure-pipelines&tabs=yaml) - have a go at getting your pipeline to publish your image now.
 
@@ -142,7 +147,7 @@ First, register your webhook as a secret variable for your pipeline:
 * Click on "Variables" in the top right
 * Add a new variable called e.g. `AZURE_WEBHOOK`, add the value, and mark it as secret
 
-Now add the relevant curl command as a final "script" step in your deployment job pipeline. Note that []"secret" variables aren't automatically available as environment variables](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-secret-variables?view=azure-devops&tabs=yaml%2Cbash#use-a-secret-variable-in-the-ui), you need to explicitly map them, like:
+Now add the relevant curl command as a final "script" step in your deployment job pipeline. Note that ["secret" variables aren't automatically available as environment variables](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-secret-variables?view=azure-devops&tabs=yaml%2Cbash#use-a-secret-variable-in-the-ui), you need to explicitly map them, like:
 ```yml
 - script: echo "My secret variable: $FOO"
   env:
@@ -165,7 +170,7 @@ At this stage, we have a pipeline such that any code, once modified, will be imm
 
 So far we've just been getting on with the work, but we really ought to be tracking it carefully. Let's see how ADO can help us track the work.
 
-This project is currently configured to have the Boards use the "Basic" process - ADO offers several in-built flows so you may work with different terminology; [Azure offer more info on those here](https://learn.microsoft.com/en-us/azure/devops/boards/work-items/guidance/choose-process?view=azure-devops&tabs=agile-process#default-processes).
+This project is currently configured to have the Boards use the "Agile" process - ADO offers several in-built flows so you may work with different terminology; [Azure offer more info on those here](https://learn.microsoft.com/en-us/azure/devops/boards/work-items/guidance/choose-process?view=azure-devops&tabs=agile-process#default-processes).
 
 Go to "Boards" and raise a new "Work Item" of type "Issue". Give yourself a simple task, such as "Change the text on the homepage".
 
@@ -216,7 +221,9 @@ We can now write the production step of our pipeline. There are various ways to 
 The fundamentals of different CI/CD tools are often very similar, but the syntax and specifics can be quite different. Can you see how you could apply the same pipeline in another tool, such as GitHub actions or GitLab pipelines?
 
 ### (Stretch goal) Monitor for failure
-Failures don't always happen immediately after a deployment. Sometimes runtime issues will only emerge after minutes, hours or days in production. Set up a separate workflow which will use your healthcheck endpoint and send a notification if the healthcheck fails. Make sure this workflow runs every 5 minutes. Hint: <https://learn.microsoft.com/en-us/azure/devops/pipelines/process/scheduled-triggers?view=azure-devops&tabs=yaml>
+Failures don't always happen immediately after a deployment. Sometimes runtime issues will only emerge after minutes, hours or days in production. Set up a separate workflow which will hit your index page and send a notification if the page fails to load. Make sure this workflow runs every 5 minutes. Hint: <https://learn.microsoft.com/en-us/azure/devops/pipelines/process/scheduled-triggers?view=azure-devops&tabs=yaml>
+
+Once you've seen this run successfully, for today we should switch it off to save pipeline time.
 
 ### (Stretch goal) Healthcheck
 Sometimes the build, tests and deployment will all succeed, however the app won't actually run. In this case it can be useful if your workflow can tell you if this has happened. Modify your workflow so that it does a healthcheck.
