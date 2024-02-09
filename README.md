@@ -13,7 +13,9 @@ If you do not have your own repository from workshop 7 for whatever reason, you 
 
 There are valid workflow files included here as a starting point (`.github/workflows/continuous-integration-workflow.yml` for GitHub or `.gitlab-ci.yml` for GitLab)
 
-During this workshop follow the instructions in [during_workshop.md](./during_workshop.md).
+During this workshop follow the instructions in the appropriate markdown:
+* [GitHub or GitLab](./github_gitlab_pipelines.md)
+* [Azure DevOps](./azure_devops.md)
 
 Refer back to [Workshop 7's instructions](https://github.com/CorndelWithSoftwire/DevOps-Course-Workshop-Module-07-Learners/blob/main/during_workshop_7.md) for a refresher on the basics or if you would like to go back and attempt those stretch goals.
 

@@ -1,6 +1,6 @@
 # Continuous Delivery Workshop Instructions
 
-## Import the repository into Azure DevOps
+## Find and rename your repository into Azure DevOps
 
 Along with those in your breakout room you will have access to an ADO "project", so at this point sign into ADO at <https://aex.dev.azure.com/> and check that you can locate that. If you don't have your Azure credentials or the Organisation doesn't show up, ask a trainer at this stage. You may be able to access it directly at <https://dev.azure.com/CorndelDevOpsPipelinesWorkshop/>.
 
@@ -10,11 +10,11 @@ By default we suggest you *each* work on a separate repository. You should have 
 
 Clone your repository onto the machine you'll be working on, and you're ready to start setting up the app.
 
-> The easiest way to do this is to use HTTPS and use the "generate credentials" option when it asks for a password. Make a note of this in case you need it later
+> The easiest way to do this is to use HTTPS and use the "generate credentials" option when it asks for a password. Make a note of this in case you need it later. Alternatively, you can use SSH and register your public key with Azure.
 
 ## Part 1 (Publish to Docker Hub)
 
-Before we deploy our application, we are going to containerise it. In addition to the consistency advantage of knowing our deployed solution should run very similarly to our local container, another advantage of deploying a container is that we are less directly tied in to a particular hosting platform; many cloud providers provide various routes for running containers which gives us flexibility when selecting or even changing our architecture.
+In order to simplify the application deployment we have containerised it. In addition to the consistency advantage of knowing our deployed solution should run very similarly to our local container, another advantage of deploying a container is that we are less directly tied in to a particular hosting platform; many cloud providers provide various routes for running containers which gives us flexibility when selecting or even changing our architecture.
 
 ### Build the Docker Image
 
@@ -22,7 +22,7 @@ We have provided the outline of a Dockerfile so that you can run the DotnetTempl
 
 To build:
 
-`docker build --target runtime --tag dotnettemplate .`
+`docker build --target runtime --tag dotnettemplate -f ado_assets/Dockerfile .`
 
 To run:
 
@@ -45,6 +45,8 @@ Take a look at the Dockerfile, can you see what it's doing?
 
 You will see that the repository already has a pipeline defined which should handle running your tests etc. Take a look and check you understand what it's doing. Once you've verified it passes, for today it's OK for speed reasons to change the value of the "skip-testing" parameter to `true`.
 
+> Note that if you specify that one job depends on another and that dependency is skipped, it won't run by default. You may need to explicitly tell your job to check `not(or(failed(), canceled())` so that skipped statuses are allowed
+
 We now want to extend that pipeline to build & publish our Docker image to DockerHub.
 
 Add a new job to your `azure-pipelines.yml` file, that handles pushing your image to DockerHub. It will need to:
@@ -66,7 +68,9 @@ In your ADO Project Settings (bottom left corner) go to "Service Connections" an
   * Enter your Docker ID and use the access token as the password
   * Give the connection a name
 
-You can now use the [Docker task](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/docker-v2?view=azure-pipelines&tabs=yaml) - have a go at getting your pipeline to publish your image now.
+You can now use the [Docker task](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/docker-v2?view=azure-pipelines&tabs=yaml) - have a go at getting your pipeline to publish your image now. Don't forget you'll need to enable the pipeline from the "Pipelines" tab first.
+
+> You'll also need to allow your pipeline to access the Docker Registry service connection that you created. You'll see the pipeline is initially paused until you've enabled that.
 
 ### Test your workflow
 
@@ -78,6 +82,8 @@ Once that's reporting successful in ADO, we should check it! To test that publis
 
 ### Publish only on main
 Modify the workflow so that it will only publish to Docker Hub when run on certain branches, for example only when the main branch is updated.
+
+Try searching for appropriate documentation, or look at [the example here](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&tabs=yaml%2Cstages).
 
 ## Part 2 (Deploy to Azure)
 
@@ -172,9 +178,9 @@ So far we've just been getting on with the work, but we really ought to be track
 
 This project is currently configured to have the Boards use the "Agile" process - ADO offers several in-built flows so you may work with different terminology; [Azure offer more info on those here](https://learn.microsoft.com/en-us/azure/devops/boards/work-items/guidance/choose-process?view=azure-devops&tabs=agile-process#default-processes).
 
-Go to "Boards" and raise a new "Work Item" of type "Issue". Give yourself a simple task, such as "Change the text on the homepage".
+Go to "Boards" and raise a new "Work Item" of type "Feature". Give yourself a simple task, such as "Change the text on the homepage".
 
-Take a moment to look at what fields are offered to be tweaked, such as the state ("To Do" etc.), the priority, and a more detailed description, then save the issue.
+Take a moment to look at what fields are offered to be tweaked, such as the state ("New", "Active", "Resolved" etc.), the priority, and a more detailed description, then save the issue.
 
 Make a note of the issue number, and check that appears as you'd expect on the "Boards" view. One nice feature of ADO is that we can easily associate branches, PRs and individual commits with work items. First, check this is enabled for your repository through:
 * Project Settings
@@ -187,7 +193,7 @@ Make a note of the issue number, and check that appears as you'd expect on the "
 > "Allow mentions in commit comments to close work items (e.g. "Fixes #123")."
 > Leave this off for now
 
-Now move the ticket into the "Doing" stage, and then get going!
+Now move the ticket into the "Active" stage, and then get going!
 
 Make a small visible change to the code, for example change the `First Page!` title in `DotnetTemplate.Web\Views\Home\FirstPage.cshtml`. When you're ready to make the change, make sure to include `#<issue_number>` as part of your commit message, e.g.:
 ```bash
@@ -214,8 +220,11 @@ We can now write the production step of our pipeline. There are various ways to 
 * Create a "deployment" job ([see example](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/create-multistage-pipeline?view=azure-devops#add-the-dev-stage))
 * Link it to the environment you created
 * Push your code, and register the new pipeline in ADO
+  * Don't forget to add your new Webhook as a variable in the new pipeline
 * Finally, run the pipeline, and check that it waits for approval!
   * Does it successfully deploy to prod once it passes approval?
+
+> Note that your "deployment" job won't automatically check out the code base, so if you're rebuilding your Docker image here, then you will need to add a [checkout step](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/deployment-jobs?view=azure-devops#runonce-deployment-strategy-1).
 
 ### (Stretch goal) Pick another CI tool to compare
 The fundamentals of different CI/CD tools are often very similar, but the syntax and specifics can be quite different. Can you see how you could apply the same pipeline in another tool, such as GitHub actions or GitLab pipelines?
