@@ -2,13 +2,20 @@
 
 This repository is for learners on Corndel's DevOps apprenticeship.
 
-If you attended workshop 7, continue working with your repository from before. If you do not have your own repository from workshop 7 for whatever reason, you will need to create one:
+If you attended workshop 7:
+- For GitHub/GitLab: continue working with your repository from before. 
+- For Azure DevOps: work with the fresh repository set up in your ADO project
+
+If you do not have your own repository from workshop 7 for whatever reason, you will need to create one:
 - On GitHub, fork this repository.
-- On GitLab, create a new GitLab repository based on this one. See step 1 of [Workshop 7](https://github.com/CorndelWithSoftwire/DevOps-Course-Workshop-Module-07-Learners/blob/main/gitlab.md).
+- On GitLab, create a new GitLab repository based on this one. See step 1 of [Workshop 7](https://github.com/CorndelWithSoftwire/DevOps-Course-Workshop-Module-07-Learners/blob/main/gitlab.md)
+- For Azure DevOps: work with the fresh repository set up in your ADO project
 
 There are valid workflow files included here as a starting point (`.github/workflows/continuous-integration-workflow.yml` for GitHub or `.gitlab-ci.yml` for GitLab)
 
-During this workshop follow the instructions in [during_workshop.md](./during_workshop.md).
+During this workshop follow the instructions in the appropriate markdown:
+* [GitHub or GitLab](./github_gitlab_pipelines.md)
+* [Azure DevOps](./azure_devops.md)
 
 Refer back to [Workshop 7's instructions](https://github.com/CorndelWithSoftwire/DevOps-Course-Workshop-Module-07-Learners/blob/main/during_workshop_7.md) for a refresher on the basics or if you would like to go back and attempt those stretch goals.
 

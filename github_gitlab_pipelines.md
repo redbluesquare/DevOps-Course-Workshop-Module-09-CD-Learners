@@ -1,4 +1,4 @@
-# Continuous Delivery Workshop Instructions
+# Continuous Delivery Workshop Instructions - GitHub & GitLab
 
 ## Part 1 (Publish to Docker Hub)
 
@@ -10,7 +10,7 @@ Write a Dockerfile so that you can run the DotnetTemplate web app in a Docker co
 
 > You might already have a Dockerfile in your repository from workshop 7, but that should be deleted or moved. It was for running a Jenkins build server locally, not for running this application.
 
-There are different approaches to writing the Dockerfile but we'd recommend starting from an [official dotnet SDK image](https://hub.docker.com/_/microsoft-dotnet-sdk/) and then [scripting the install of node/NPM](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions).
+There are different approaches to writing the Dockerfile but we'd recommend starting from an [official dotnet SDK image](https://hub.docker.com/_/microsoft-dotnet-sdk/) and then [use the Debian instructions for scripting the install of node/NPM](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions). You can always use the Dockerfile provided in this repo for comparison.
 
 Then use the setup commands in the [README](./README.md) to install dependencies and build the app.
 
@@ -35,9 +35,9 @@ Once you've done that try building and running the Dockerfile locally to check i
 
 You should already have a pipeline which builds and tests the app. You will now extend it to automatically build the Docker image and publish it to Docker Hub.
 
-Use one of **GitHub Actions** or **GitLab CI/CD** for this workshop - GitHub Actions is the default if you're not sure which to choose.
-
 #### **With GitHub Actions**
+
+<details><summary> Click to see GitHub Actions guidance </summary>
 
 You could add new steps to your existing job, but let's create a new job to handle this. Make sure your new job only runs after the testing job completes successfully, by using the ["needs"](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idneeds) option.
 
@@ -47,7 +47,12 @@ Try tagging your published image with the name of the branch that triggered the 
 
 > Note that default environment variables won't be available in a `with: ` section because that's evaluated during workflow processing, before it is sent to the runner.
 
+</details>
+
+
 #### **With GitLab CI/CD**
+
+<details><summary> Click to see GitLab CI guidance </summary>
 
 Add a new job to your .gitlab-ci.yml file. It should belong to a new stage so that it only runs after all tests have completed successfully.
 
@@ -65,6 +70,8 @@ You do this via the GitLab website (Settings -> CI/CD -> Variables). CI/CD Varia
 
 Try tagging your published image with the name of the branch that triggered the build. Find the appropriate environment variable from [GitLab's documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
 
+</details>
+
 ### Test your workflow
 To test that publishing to Docker Hub is working:
 1. Make some change to the application code. Don't worry if you don't know anything about C#, find some visible text to modify in DotnetTemplate.Web/Views/Home/FirstPage.cshtml.
@@ -75,8 +82,8 @@ To test that publishing to Docker Hub is working:
 ### Publish only on main
 Modify the workflow so that it will only publish to Docker Hub when run on certain branches, for example only when the main branch is updated.
 
-### (Stretch goal) Publish to Docker Hub with Jenkins
-In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Modify the Jenkinsfile so that it will publish to Docker Hub.
+### (Stretch goal) Pick another CI tool to compare
+Have a go at following the instructions for an alternative CI tool - how does it compare? Which do you prefer?
 
 ## Part 2 (Deploy to Azure)
 
@@ -237,5 +244,5 @@ How would you handle failure, for example if one of the healthchecks from the pr
 ### (Stretch goal) Promote when manually triggered
 Currently we'll deploy every time a change is pushed to the main branch. However you might want to have more control over when deployments happen. Modify your Azure and workflow setup so your main branch releases to a staging environment, and you instead manually trigger a workflow to release to production.
 
-### (Stretch goal) Jenkins
-In one of the workshop 7 goals you were asked to set up a Jenkins job for the app (if you haven't done that yet it's worth going back to it now). Now modify the Jenkinsfile so that it will deploy to Azure.
+### (Stretch goal) Pick another CI tool to compare
+Have a go at following the instructions for an alternative CI tool - how does it compare? Which do you prefer?
