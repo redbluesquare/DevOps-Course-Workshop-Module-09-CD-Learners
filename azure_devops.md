@@ -32,7 +32,7 @@ Take a look at the Dockerfile, can you see what it's doing?
 
 > In particular, this image tries to reduce its footprint by using a different base image for the final result than the base image with all the necessary tooling used to compile the application.
 
-> Try building the initial image stage with `docker build --target build-stage --tag intermediate .`, and compare its size through Docker Desktop or `docker image ls`.
+> Try building the initial image stage with `docker build --target build-stage --tag intermediate -f ado_assets/Dockerfile .`, and compare its size through Docker Desktop or `docker image ls`.
 
 ### Manually publish to Docker Hub
 
