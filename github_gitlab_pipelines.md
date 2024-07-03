@@ -92,27 +92,11 @@ Have a go at following the instructions for an alternative CI tool - how does it
 1. Sign into [the Azure portal](https://portal.azure.com/) - you should have been given account credentials by a trainer.
 2. Locate your resource groups. You should find you have two, one ending with `_Workshop` which we'll be using today.
 > A resource group is a logical container into which Azure resources, such as web apps, databases, and storage accounts, are deployed and managed. [More Azure Terminology can be found here](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview#terminology).
-3. Create a Web App to run our container
-<details><summary> Click for instructions using the portal </summary>
-
-  * From within your Resource Group, select the "Create" option at the top
-  * Select the "Web App" option shown, or if you can't see it then search for it
-    * We want precisely "Web App", watch out for & avoid similar resources such as "Static Web App" or "Web App for Containers"
-  * Set the relevant options:
-    * Make sure the Resource Group points to your `_Workshop` group
-    * Choose a name for your app - this will need to be globally unique so including your initials may be sensible
-    * For the "Publish" option, select "Docker Container"
-    * Under “App Service Plan”, it should default to creating a new one, which is correct. Just change the “Sku and size” to “B1”.
-    * On the next screen, select Docker Hub in the “Image Source” field, and enter the details of your image.
-</details>
-<details><summary> Click for instructions using the CLI </summary>
-
-* First make sure that you've logged into the right account with `az login` (or `az login --use-device-code` on GitPod)
-  * You can check which account you're logged into with `az account list`
-* First create an App Service Plan: `az appservice plan create --resource-group <resource_group_name> -n <appservice_plan_name> --sku B1 --is-linux`
-* Then create the Web App: `az webapp create --resource-group <resource_group_name> --plan <appservice_plan_name> --name <webapp_name> --deployment-container-image-name docker.io/<dockerhub_username>/<container-image-name>:latest`
-  </details>
-<br>
+3. Create a Web App to run our container via the Azure CLI
+    * First make sure that you've logged into the right account with `az login` (or `az login --use-device-code` on GitPod)
+      * You can check which account you're logged into with `az account list`
+    * Next create an App Service Plan: `az appservice plan create --resource-group <resource_group_name> -n <appservice_plan_name> --sku B1 --is-linux`
+    * Then create the Web App: `az webapp create --resource-group <resource_group_name> --plan <appservice_plan_name> --name <webapp_name> --deployment-container-image-name docker.io/<dockerhub_username>/<container-image-name>:latest`
 
 4. Configure the [`WEBSITES_PORT` app setting](https://learn.microsoft.com/en-us/azure/app-service/configure-custom-container?tabs=debian&pivots=container-linux#configure-port-number) which identifies which port in the container requests should be forwarded to (which will likely be port 5000 for your container image).
 5. You can see the app running by using the "Browse" button from within the new resource's overview page or by visiting `https://<webapp_name>.azurewebsites.net` directly.
