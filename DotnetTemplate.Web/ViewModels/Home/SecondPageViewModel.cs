@@ -12,7 +12,7 @@
             {
                 "Second Page Item 1",
                 "Second Page Item 2",
-                "Second Page Item 3"
+                "Book: The Phoenix Project"
             };
         }
     }
