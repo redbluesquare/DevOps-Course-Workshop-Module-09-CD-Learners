@@ -25,3 +25,19 @@ jobs:
     - name: Typescript test
       run: npm run test
       working-directory: ./DotnetTemplate.Web
+  
+  deploy:
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build the Dockerfile
+      run: docker build --tag redbluesquare/dotnettemplate:latest .
+      working-directory: .
+
+    - name: Publish the Dockerfile
+      run: docker push redbluesquare/dotnettemplate
+      working-directory: .
+
