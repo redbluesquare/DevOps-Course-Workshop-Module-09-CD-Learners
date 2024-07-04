@@ -10,7 +10,7 @@
         {
             FirstPageItems = new[]
             {
-                "Item 1",
+                "Book: The Phoenix Project",
                 "Item 2",
                 "Item 3"
             };
