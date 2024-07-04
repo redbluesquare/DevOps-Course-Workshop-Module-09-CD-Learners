@@ -37,6 +37,12 @@ jobs:
       run: docker build --tag redbluesquare/dotnettemplate:latest .
       working-directory: .
 
+    - name: Login to Dockerhub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
     - name: Publish the Dockerfile
       run: docker push redbluesquare/dotnettemplate
       working-directory: .
